@@ -16,6 +16,7 @@ public class MainRollback {
 
             connection.setAutoCommit(false); // Modo transaccional
 
+            // Hacemos dos PreparedStatement para hacer algunas operaciones
             try (PreparedStatement ps1 = connection.prepareStatement(
                     "INSERT INTO empleado (nombre, salario) VALUES (?, ?)")) {
                 ps1.setString(1, "Carlos");
@@ -29,11 +30,15 @@ public class MainRollback {
                 ps2.executeUpdate();
             }
 
+            // Aqui despues de las operaciones, hacemos un commit para guardar.
             connection.commit();
             System.out.println("Transaccion exitosa!");
-
+            
+        // Si algo falla, mostramos el error por la pantalla
+        // Y hacemos un rollback.
         } catch (SQLException e) {
             System.out.println("Error: " + e.getMessage());
+            connection.rollback();
         }
     }
 }
