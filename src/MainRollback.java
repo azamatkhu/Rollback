@@ -1,15 +1,39 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import java.sql.*;
+import java.util.*;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+public class MainRollback {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        try {
+            Connection connection = DriverManager.getConnection(
+                    "jdbc:oracle:thin:@localhost:1521:xe",
+                    "RIBERA",
+                    "ribera"
+            );
+
+            System.out.println("Conectado!");
+
+            connection.setAutoCommit(false); // Modo transaccional
+
+            try (PreparedStatement ps1 = connection.prepareStatement(
+                    "INSERT INTO empleado (nombre, salario) VALUES (?, ?)")) {
+                ps1.setString(1, "Carlos");
+                ps1.setDouble(2, 4200);
+                ps1.executeUpdate();
+            }
+
+            try (PreparedStatement ps2 = connection.prepareStatement(
+                    "UPDATE departamento SET presupuesto = presupuesto + ? WHERE id = 1")) {
+                ps2.setDouble(1, 4200);
+                ps2.executeUpdate();
+            }
+
+            connection.commit();
+            System.out.println("Transaccion exitosa!");
+
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 }
